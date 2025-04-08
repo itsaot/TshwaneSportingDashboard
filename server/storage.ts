@@ -50,11 +50,11 @@ export class MemStorage implements IStorage {
       checkPeriod: 86400000 // prune expired entries every 24h
     });
     
-    // Create default admin user
+    // Create default admin user for Tshwane Sporting FC
     this.createUser({
-      username: "admin@tshwanesporting.com",
-      password: "$2b$10$IqpmxHmvCrN9Z/dzWFTmH.Aj5r4Ry3y/HteJpGz4xp2cUgK9F.lK.", // hashed "adminpass"
-      fullName: "Admin User",
+      username: "sporting@tshwane.co.za",
+      password: "0c6348d8578112604c02b6d2406986fab42e8ddc1e16ee9f0c0d76bbbad62f334b95eb679c4de5048e887ace2364582ca739f5e7203b308c8a2792d96958a19a.221395311cb524ab8600d38350c505d4", // hashed "Sporting@2020"
+      fullName: "Tshwane Sporting Admin",
       isAdmin: true
     });
   }
