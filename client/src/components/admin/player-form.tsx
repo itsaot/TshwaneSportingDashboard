@@ -78,6 +78,11 @@ export default function PlayerForm({ player, onSuccess, onCancel }: PlayerFormPr
     dateJoined: new Date(player.dateJoined).toISOString().split('T')[0],
     safaId: player.safaId || "",
     race: player.race || "Not specified",
+    nationality: player.nationality || "South African",
+    preferredFoot: player.preferredFoot || "Right",
+    position: player.position || "Midfielder",
+    teamCategory: player.teamCategory || "Senior Team",
+    registrationStatus: player.registrationStatus || "Pending",
     notes: player.notes || "",
   } : {
     firstName: "",
@@ -86,11 +91,11 @@ export default function PlayerForm({ player, onSuccess, onCancel }: PlayerFormPr
     dateOfBirth: "",
     age: 0,
     race: "Not specified",
-    nationality: "",
+    nationality: "South African",
     safaId: "",
-    preferredFoot: "",
-    position: "",
-    teamCategory: "",
+    preferredFoot: "Right",
+    position: "Midfielder",
+    teamCategory: "Senior Team",
     dateJoined: new Date().toISOString().split('T')[0],
     registrationStatus: "Pending",
     photoUrl: "",
@@ -117,12 +122,21 @@ export default function PlayerForm({ player, onSuccess, onCancel }: PlayerFormPr
   const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
     try {
+      console.log("Form values being submitted:", values);
       const formData = new FormData();
       
       // Append all fields to formData
+      // Convert ISO date strings to PostgreSQL date format (YYYY-MM-DD)
       Object.entries(values).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
-          formData.append(key, value.toString());
+          // Handle date fields specifically
+          if (key === "dateOfBirth" || key === "dateJoined") {
+            // Ensure date values are in YYYY-MM-DD format for PostgreSQL
+            const dateValue = new Date(value.toString()).toISOString().split('T')[0];
+            formData.append(key, dateValue);
+          } else {
+            formData.append(key, value.toString());
+          }
         }
       });
       
@@ -141,6 +155,8 @@ export default function PlayerForm({ player, onSuccess, onCancel }: PlayerFormPr
         });
         
         if (!response.ok) {
+          const errorData = await response.json().catch(() => null);
+          console.error("Update player error response:", errorData);
           throw new Error(`Error updating player: ${response.statusText}`);
         }
       } else {
@@ -152,6 +168,8 @@ export default function PlayerForm({ player, onSuccess, onCancel }: PlayerFormPr
         });
         
         if (!response.ok) {
+          const errorData = await response.json().catch(() => null);
+          console.error("Create player error response:", errorData);
           throw new Error(`Error creating player: ${response.statusText}`);
         }
       }
