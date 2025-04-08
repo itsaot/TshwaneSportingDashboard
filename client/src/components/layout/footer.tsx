@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Facebook, Twitter, Instagram, MapPin, Phone, Mail, Send } from "lucide-react";
+import clubLogo from "@/assets/club-logo.jpg";
 
 export default function Footer() {
   return (
@@ -11,9 +12,9 @@ export default function Footer() {
           <div>
             <div className="flex items-center space-x-3 mb-4">
               <img
-                src="https://i.postimg.cc/0Q8TKHdG/favicon.ico"
+                src={clubLogo}
                 alt="Tshwane Sporting FC Logo"
-                className="h-10"
+                className="h-10 rounded-full"
               />
               <h3 className="text-xl font-heading font-bold">
                 Tshwane Sporting FC
@@ -53,23 +54,23 @@ export default function Footer() {
             <h4 className="text-lg font-medium mb-4">Quick Links</h4>
             <ul className="space-y-2">
               <li>
-                <Link href="/">
-                  <a className="text-gray-400 hover:text-white transition">Home</a>
+                <Link href="/" className="text-gray-400 hover:text-white transition">
+                  Home
                 </Link>
               </li>
               <li>
-                <Link href="/players">
-                  <a className="text-gray-400 hover:text-white transition">Players</a>
+                <Link href="/players" className="text-gray-400 hover:text-white transition">
+                  Players
                 </Link>
               </li>
               <li>
-                <Link href="/gallery">
-                  <a className="text-gray-400 hover:text-white transition">Gallery</a>
+                <Link href="/gallery" className="text-gray-400 hover:text-white transition">
+                  Gallery
                 </Link>
               </li>
               <li>
-                <Link href="/about">
-                  <a className="text-gray-400 hover:text-white transition">About Us</a>
+                <Link href="/about" className="text-gray-400 hover:text-white transition">
+                  About Us
                 </Link>
               </li>
             </ul>

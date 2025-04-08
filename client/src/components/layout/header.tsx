@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Menu, X, User, LogOut } from "lucide-react";
 import MobileMenu from "./mobile-menu";
 import { Separator } from "@/components/ui/separator";
+import clubLogo from "@/assets/club-logo.jpg";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -28,9 +29,9 @@ export default function Header() {
           <Link href="/">
             <div className="flex items-center space-x-3 cursor-pointer">
               <img
-                src="https://i.postimg.cc/0Q8TKHdG/favicon.ico"
+                src={clubLogo}
                 alt="Tshwane Sporting FC Logo"
-                className="h-12"
+                className="h-12 rounded-full"
               />
               <div>
                 <h1 className="text-xl md:text-2xl font-heading font-bold">
@@ -43,25 +44,17 @@ export default function Header() {
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link href="/">
-              <a className={`font-medium transition duration-200 ${isActive('/') ? 'text-white' : 'text-white/80 hover:text-white'}`}>
-                Home
-              </a>
+            <Link href="/" className={`font-medium transition duration-200 ${isActive('/') ? 'text-white' : 'text-white/80 hover:text-white'}`}>
+              Home
             </Link>
-            <Link href="/players">
-              <a className={`font-medium transition duration-200 ${isActive('/players') ? 'text-white' : 'text-white/80 hover:text-white'}`}>
-                Players
-              </a>
+            <Link href="/players" className={`font-medium transition duration-200 ${isActive('/players') ? 'text-white' : 'text-white/80 hover:text-white'}`}>
+              Players
             </Link>
-            <Link href="/gallery">
-              <a className={`font-medium transition duration-200 ${isActive('/gallery') ? 'text-white' : 'text-white/80 hover:text-white'}`}>
-                Gallery
-              </a>
+            <Link href="/gallery" className={`font-medium transition duration-200 ${isActive('/gallery') ? 'text-white' : 'text-white/80 hover:text-white'}`}>
+              Gallery
             </Link>
-            <Link href="/about">
-              <a className={`font-medium transition duration-200 ${isActive('/about') ? 'text-white' : 'text-white/80 hover:text-white'}`}>
-                About
-              </a>
+            <Link href="/about" className={`font-medium transition duration-200 ${isActive('/about') ? 'text-white' : 'text-white/80 hover:text-white'}`}>
+              About
             </Link>
             
             {user ? (

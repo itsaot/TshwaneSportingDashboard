@@ -76,13 +76,16 @@ export default function PlayerForm({ player, onSuccess, onCancel }: PlayerFormPr
     ...player,
     dateOfBirth: new Date(player.dateOfBirth).toISOString().split('T')[0],
     dateJoined: new Date(player.dateJoined).toISOString().split('T')[0],
+    safaId: player.safaId || "",
+    race: player.race || "Not specified",
+    notes: player.notes || "",
   } : {
     firstName: "",
     surname: "",
     idNumber: "",
     dateOfBirth: "",
     age: 0,
-    race: "",
+    race: "Not specified",
     nationality: "",
     safaId: "",
     preferredFoot: "",
@@ -282,7 +285,7 @@ export default function PlayerForm({ player, onSuccess, onCancel }: PlayerFormPr
                   <FormLabel>Race</FormLabel>
                   <Select 
                     onValueChange={field.onChange} 
-                    defaultValue={field.value}
+                    defaultValue={field.value || "Not specified"}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -290,7 +293,7 @@ export default function PlayerForm({ player, onSuccess, onCancel }: PlayerFormPr
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">Not specified</SelectItem>
+                      <SelectItem value="Not specified">Not specified</SelectItem>
                       <SelectItem value="Black">Black</SelectItem>
                       <SelectItem value="White">White</SelectItem>
                       <SelectItem value="Indian">Indian</SelectItem>
@@ -311,7 +314,7 @@ export default function PlayerForm({ player, onSuccess, onCancel }: PlayerFormPr
                   <FormLabel>Nationality *</FormLabel>
                   <Select 
                     onValueChange={field.onChange} 
-                    defaultValue={field.value}
+                    defaultValue={field.value || "South African"}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -370,7 +373,7 @@ export default function PlayerForm({ player, onSuccess, onCancel }: PlayerFormPr
                   <FormLabel>Team Category *</FormLabel>
                   <Select 
                     onValueChange={field.onChange} 
-                    defaultValue={field.value}
+                    defaultValue={field.value || "Senior Team"}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -397,7 +400,7 @@ export default function PlayerForm({ player, onSuccess, onCancel }: PlayerFormPr
                   <FormLabel>Position *</FormLabel>
                   <Select 
                     onValueChange={field.onChange} 
-                    defaultValue={field.value}
+                    defaultValue={field.value || "Midfielder"}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -425,7 +428,7 @@ export default function PlayerForm({ player, onSuccess, onCancel }: PlayerFormPr
                   <FormLabel>Preferred Foot *</FormLabel>
                   <Select 
                     onValueChange={field.onChange} 
-                    defaultValue={field.value}
+                    defaultValue={field.value || "Right"}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -452,7 +455,7 @@ export default function PlayerForm({ player, onSuccess, onCancel }: PlayerFormPr
                 <FormItem>
                   <FormLabel>SAFA ID</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="SAFA ID (if available)" />
+                    <Input {...field} value={field.value || ""} placeholder="SAFA ID (if available)" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -481,7 +484,7 @@ export default function PlayerForm({ player, onSuccess, onCancel }: PlayerFormPr
                   <FormLabel>Registration Status *</FormLabel>
                   <Select 
                     onValueChange={field.onChange} 
-                    defaultValue={field.value}
+                    defaultValue={field.value || "Pending"}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -511,6 +514,7 @@ export default function PlayerForm({ player, onSuccess, onCancel }: PlayerFormPr
                   <FormControl>
                     <Textarea 
                       {...field} 
+                      value={field.value || ""}
                       placeholder="Additional notes about the player" 
                       className="h-24"
                     />
