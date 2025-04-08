@@ -30,7 +30,7 @@ import { useToast } from "@/hooks/use-toast";
 import UploadPhotoForm from "@/components/admin/upload-photo-form";
 
 export default function GalleryManagement() {
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isAddPhotoOpen, setIsAddPhotoOpen] = useState(false);
   const [editingPhoto, setEditingPhoto] = useState<Photo | null>(null);
@@ -64,7 +64,7 @@ export default function GalleryManagement() {
   });
 
   const filteredPhotos = photos?.filter(photo => {
-    const matchesCategory = selectedCategory ? photo.category === selectedCategory : true;
+    const matchesCategory = selectedCategory === "All" ? true : photo.category === selectedCategory;
     const matchesSearch = searchQuery
       ? photo.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (photo.description && photo.description.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -113,7 +113,7 @@ export default function GalleryManagement() {
             </Button>
             <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
               <TabsList>
-                <TabsTrigger value="">All Photos</TabsTrigger>
+                <TabsTrigger value="All">All Photos</TabsTrigger>
                 <TabsTrigger value="Match Days">Match Days</TabsTrigger>
                 <TabsTrigger value="Training">Training</TabsTrigger>
                 <TabsTrigger value="Team Events">Team Events</TabsTrigger>
@@ -184,7 +184,7 @@ export default function GalleryManagement() {
                 <Button
                   variant="outline"
                   onClick={() => {
-                    setSelectedCategory("");
+                    setSelectedCategory("All");
                     setSearchQuery("");
                   }}
                 >

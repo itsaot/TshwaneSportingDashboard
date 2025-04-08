@@ -41,13 +41,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Search, Plus, Edit, Trash2, Eye, ArrowLeft, Loader2 } from "lucide-react";
+import { Search, Plus, Edit, Trash2, Eye, ArrowLeft, Loader2, User } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import PlayerForm from "@/components/admin/player-form";
 
 export default function PlayerManagement() {
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isAddPlayerOpen, setIsAddPlayerOpen] = useState(false);
   const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
@@ -82,7 +82,7 @@ export default function PlayerManagement() {
   });
 
   const filteredPlayers = players?.filter(player => {
-    const matchesCategory = selectedCategory ? player.teamCategory === selectedCategory : true;
+    const matchesCategory = selectedCategory === "All" ? true : player.teamCategory === selectedCategory;
     const matchesSearch = searchQuery
       ? player.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         player.surname.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -135,7 +135,7 @@ export default function PlayerManagement() {
                 <SelectValue placeholder="Filter by team" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Players</SelectItem>
+                <SelectItem value="All">All Players</SelectItem>
                 <SelectItem value="Senior Team">Senior Team</SelectItem>
                 <SelectItem value="U-17 Team">U-17 Team</SelectItem>
                 <SelectItem value="U-15 Team">U-15 Team</SelectItem>
@@ -250,7 +250,7 @@ export default function PlayerManagement() {
                       <Button 
                         variant="link" 
                         onClick={() => {
-                          setSelectedCategory("");
+                          setSelectedCategory("All");
                           setSearchQuery("");
                         }}
                       >

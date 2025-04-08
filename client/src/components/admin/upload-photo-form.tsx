@@ -49,6 +49,7 @@ export default function UploadPhotoForm({ photo, onSuccess, onCancel }: UploadPh
   // Default values for the form
   const defaultValues: Partial<FormValues> = photo ? {
     ...photo,
+    description: photo.description ?? "",
   } : {
     title: "",
     category: "",
@@ -200,7 +201,7 @@ export default function UploadPhotoForm({ photo, onSuccess, onCancel }: UploadPh
                   <FormLabel>Category *</FormLabel>
                   <Select 
                     onValueChange={field.onChange} 
-                    defaultValue={field.value}
+                    defaultValue={field.value || "Match Days"}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -227,6 +228,7 @@ export default function UploadPhotoForm({ photo, onSuccess, onCancel }: UploadPh
                   <FormControl>
                     <Textarea 
                       {...field} 
+                      value={field.value ?? ""}
                       placeholder="Optional description for the photo" 
                       className="h-32"
                     />
