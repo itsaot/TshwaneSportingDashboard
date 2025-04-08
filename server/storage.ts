@@ -1,7 +1,11 @@
 import session from "express-session";
+import { eq } from "drizzle-orm";
+import * as schema from "@shared/schema";
+import { users, User, InsertUser, players, Player, InsertPlayer, photos, Photo, InsertPhoto } from "@shared/schema";
+import { db } from "./db";
 import createMemoryStore from "memorystore";
-import { User, InsertUser, Player, InsertPlayer, Photo, InsertPhoto } from "@shared/schema";
 
+// Create memory store for sessions
 const MemoryStore = createMemoryStore(session);
 
 export interface IStorage {
@@ -27,148 +31,119 @@ export interface IStorage {
   deletePhoto(id: number): Promise<boolean>;
   
   // Session store
-  sessionStore: session.SessionStore;
+  sessionStore: session.Store;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private players: Map<number, Player>;
-  private photos: Map<number, Photo>;
-  private userId: number;
-  private playerId: number;
-  private photoId: number;
-  sessionStore: session.SessionStore;
+export class DatabaseStorage implements IStorage {
+  sessionStore: session.Store;
 
   constructor() {
-    this.users = new Map();
-    this.players = new Map();
-    this.photos = new Map();
-    this.userId = 1;
-    this.playerId = 1;
-    this.photoId = 1;
     this.sessionStore = new MemoryStore({
-      checkPeriod: 86400000 // prune expired entries every 24h
+      checkPeriod: 86400000, // prune expired entries every 24h
     });
     
-    // Create default admin user for Tshwane Sporting FC
-    this.createUser({
-      username: "sporting@tshwane.co.za",
-      password: "0c6348d8578112604c02b6d2406986fab42e8ddc1e16ee9f0c0d76bbbad62f334b95eb679c4de5048e887ace2364582ca739f5e7203b308c8a2792d96958a19a.221395311cb524ab8600d38350c505d4", // hashed "Sporting@2020"
-      fullName: "Tshwane Sporting Admin",
-      isAdmin: true
-    });
+    // Initialize with admin user if none exists
+    this.initAdminUser();
+  }
+
+  private async initAdminUser() {
+    try {
+      const existingAdmin = await this.getUserByUsername("sporting@tshwane.co.za");
+      if (!existingAdmin) {
+        await this.createUser({
+          username: "sporting@tshwane.co.za",
+          password: "0c6348d8578112604c02b6d2406986fab42e8ddc1e16ee9f0c0d76bbbad62f334b95eb679c4de5048e887ace2364582ca739f5e7203b308c8a2792d96958a19a.221395311cb524ab8600d38350c505d4", // hashed "Sporting@2020"
+          fullName: "Tshwane Sporting Admin",
+          isAdmin: true
+        });
+        console.log("Admin user created successfully");
+      }
+    } catch (err) {
+      console.error("Error initializing admin user:", err);
+    }
   }
 
   // User operations
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.userId++;
-    const user: User = { 
-      ...insertUser, 
-      id,
-      createdAt: new Date()
-    };
-    this.users.set(id, user);
+    const [user] = await db.insert(users).values(insertUser).returning();
     return user;
   }
 
   // Player operations
   async getPlayers(): Promise<Player[]> {
-    return Array.from(this.players.values());
+    return await db.select().from(players);
   }
 
   async getPlayerById(id: number): Promise<Player | undefined> {
-    return this.players.get(id);
+    const [player] = await db.select().from(players).where(eq(players.id, id));
+    return player;
   }
 
   async getPlayersByCategory(category: string): Promise<Player[]> {
-    return Array.from(this.players.values()).filter(
-      (player) => player.teamCategory === category
-    );
+    return await db.select().from(players).where(eq(players.teamCategory, category));
   }
 
   async createPlayer(insertPlayer: InsertPlayer): Promise<Player> {
-    const id = this.playerId++;
-    const now = new Date();
-    const player: Player = {
-      ...insertPlayer,
-      id,
-      createdAt: now,
-      updatedAt: now
-    };
-    this.players.set(id, player);
+    const [player] = await db.insert(players).values(insertPlayer).returning();
     return player;
   }
 
   async updatePlayer(id: number, updateData: Partial<InsertPlayer>): Promise<Player | undefined> {
-    const player = this.players.get(id);
-    if (!player) return undefined;
-    
-    const updatedPlayer: Player = {
-      ...player,
-      ...updateData,
-      updatedAt: new Date()
-    };
-    
-    this.players.set(id, updatedPlayer);
+    const [updatedPlayer] = await db
+      .update(players)
+      .set(updateData)
+      .where(eq(players.id, id))
+      .returning();
     return updatedPlayer;
   }
 
   async deletePlayer(id: number): Promise<boolean> {
-    return this.players.delete(id);
+    const result = await db.delete(players).where(eq(players.id, id));
+    return !!result;
   }
 
   // Photo operations
   async getPhotos(): Promise<Photo[]> {
-    return Array.from(this.photos.values());
+    return await db.select().from(photos);
   }
 
   async getPhotoById(id: number): Promise<Photo | undefined> {
-    return this.photos.get(id);
+    const [photo] = await db.select().from(photos).where(eq(photos.id, id));
+    return photo;
   }
 
   async getPhotosByCategory(category: string): Promise<Photo[]> {
-    return Array.from(this.photos.values()).filter(
-      (photo) => photo.category === category
-    );
+    return await db.select().from(photos).where(eq(photos.category, category));
   }
 
   async createPhoto(insertPhoto: InsertPhoto): Promise<Photo> {
-    const id = this.photoId++;
-    const photo: Photo = {
-      ...insertPhoto,
-      id,
-      uploadDate: new Date()
-    };
-    this.photos.set(id, photo);
+    const [photo] = await db.insert(photos).values(insertPhoto).returning();
     return photo;
   }
 
   async updatePhoto(id: number, updateData: Partial<InsertPhoto>): Promise<Photo | undefined> {
-    const photo = this.photos.get(id);
-    if (!photo) return undefined;
-    
-    const updatedPhoto: Photo = {
-      ...photo,
-      ...updateData,
-    };
-    
-    this.photos.set(id, updatedPhoto);
+    const [updatedPhoto] = await db
+      .update(photos)
+      .set(updateData)
+      .where(eq(photos.id, id))
+      .returning();
     return updatedPhoto;
   }
 
   async deletePhoto(id: number): Promise<boolean> {
-    return this.photos.delete(id);
+    const result = await db.delete(photos).where(eq(photos.id, id));
+    return !!result;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
