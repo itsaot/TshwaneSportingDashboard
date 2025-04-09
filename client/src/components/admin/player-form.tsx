@@ -134,6 +134,10 @@ export default function PlayerForm({ player, onSuccess, onCancel }: PlayerFormPr
             // Ensure date values are in YYYY-MM-DD format for PostgreSQL
             const dateValue = new Date(value.toString()).toISOString().split('T')[0];
             formData.append(key, dateValue);
+          } else if (key === "age") {
+            // Ensure age is sent as a number
+            const ageValue = parseInt(value.toString(), 10);
+            formData.append(key, ageValue.toString());
           } else {
             formData.append(key, value.toString());
           }

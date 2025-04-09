@@ -1,4 +1,5 @@
 import type { Express } from "express";
+import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth } from "./auth";
@@ -41,6 +42,14 @@ const upload = multer({
 export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication
   setupAuth(app);
+  
+  // Explicitly serve uploads directory
+  const uploadsDir = path.join(process.cwd(), "dist", "public", "uploads");
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+  app.use('/uploads', express.static(uploadsDir));
+  console.log(`Serving uploads from: ${uploadsDir}`);
 
   // Player routes
   app.get("/api/players", async (req, res) => {
@@ -79,9 +88,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const photoUrl = req.file ? `/uploads/${req.file.filename}` : undefined;
       const playerData = { ...req.body, photoUrl };
       
-      // Convert string age to number
-      if (playerData.age && typeof playerData.age === 'string') {
-        playerData.age = parseInt(playerData.age, 10);
+      // Convert age to a number in all cases
+      if ('age' in playerData) {
+        const parsedAge = parseInt(String(playerData.age), 10);
+        if (!isNaN(parsedAge)) {
+          playerData.age = parsedAge;
+        } else {
+          playerData.age = 0;
+        }
       }
       
       // Fix date formats if needed
@@ -129,12 +143,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Unauthorized" });
       }
 
+      console.log("Raw player update data:", req.body);
+
       const id = parseInt(req.params.id);
       let playerData = { ...req.body };
       
       if (req.file) {
         playerData.photoUrl = `/uploads/${req.file.filename}`;
       }
+      
+      // Convert age to a number in all cases
+      if ('age' in playerData) {
+        const parsedAge = parseInt(String(playerData.age), 10);
+        if (!isNaN(parsedAge)) {
+          playerData.age = parsedAge;
+        } else {
+          playerData.age = 0;
+        }
+      }
+      
+      // Fix date formats if needed
+      if (playerData.dateOfBirth) {
+        try {
+          // Ensure date is in YYYY-MM-DD format
+          const date = new Date(playerData.dateOfBirth);
+          playerData.dateOfBirth = date.toISOString().split('T')[0];
+        } catch (e) {
+          console.error("Error formatting dateOfBirth:", e);
+        }
+      }
+      
+      if (playerData.dateJoined) {
+        try {
+          // Ensure date is in YYYY-MM-DD format
+          const date = new Date(playerData.dateJoined);
+          playerData.dateJoined = date.toISOString().split('T')[0];
+        } catch (e) {
+          console.error("Error formatting dateJoined:", e);
+        }
+      }
+      
+      console.log("Processed player data before update:", playerData);
       
       const updatedPlayer = await storage.updatePlayer(id, playerData);
       if (!updatedPlayer) {
@@ -143,7 +192,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json(updatedPlayer);
     } catch (err) {
-      res.status(500).json({ message: "Failed to update player" });
+      console.error("Player update error:", err);
+      res.status(500).json({ 
+        message: "Failed to update player", 
+        error: err instanceof Error ? err.message : String(err) 
+      });
     }
   });
 
