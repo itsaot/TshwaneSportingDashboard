@@ -10,4 +10,22 @@
   body {
     @apply font-sans antialiased bg-background text-foreground;
   }
+  
+  /* Improve text contrast */
+  .text-white, .text-cream, .text-slate-100, .text-slate-200, .text-zinc-100, .text-zinc-200 {
+    text-shadow: 0 0 1px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* Improved heading contrast */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold;
+  }
+  
+  /* Footer/header white text adjustments */
+  .bg-primary .text-white, 
+  .bg-black .text-white,
+  [class*="bg-slate-"] .text-white {
+    @apply font-medium;
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+  }
 }

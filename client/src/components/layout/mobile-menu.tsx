@@ -52,34 +52,34 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
           
           <Link 
             href="/" 
-            className={`text-lg py-2 ${isActive('/') ? 'text-white font-medium' : 'text-white/80'}`}
+            className={`text-lg py-2 font-bold ${isActive('/') ? 'text-white' : 'text-white/90'}`}
             onClick={onClose}
           >
-            Home
+            HOME
           </Link>
           
           <Link 
             href="/players" 
-            className={`text-lg py-2 ${isActive('/players') ? 'text-white font-medium' : 'text-white/80'}`}
+            className={`text-lg py-2 font-bold ${isActive('/players') ? 'text-white' : 'text-white/90'}`}
             onClick={onClose}
           >
-            Players
+            PLAYERS
           </Link>
           
           <Link 
             href="/gallery" 
-            className={`text-lg py-2 ${isActive('/gallery') ? 'text-white font-medium' : 'text-white/80'}`}
+            className={`text-lg py-2 font-bold ${isActive('/gallery') ? 'text-white' : 'text-white/90'}`}
             onClick={onClose}
           >
-            Gallery
+            GALLERY
           </Link>
           
           <Link 
             href="/about" 
-            className={`text-lg py-2 ${isActive('/about') ? 'text-white font-medium' : 'text-white/80'}`}
+            className={`text-lg py-2 font-bold ${isActive('/about') ? 'text-white' : 'text-white/90'}`}
             onClick={onClose}
           >
-            About
+            ABOUT
           </Link>
           
           {user?.isAdmin && (
@@ -87,24 +87,24 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               <Separator className="bg-white/20" />
               <Link 
                 href="/admin" 
-                className={`text-lg py-2 ${isActive('/admin') ? 'text-white font-medium' : 'text-white/80'}`}
+                className={`text-lg py-2 font-bold ${isActive('/admin') ? 'text-white' : 'text-white/90'}`}
                 onClick={onClose}
               >
-                Admin Dashboard
+                ADMIN DASHBOARD
               </Link>
               <Link 
                 href="/admin/players" 
-                className={`text-lg py-2 ${isActive('/admin/players') ? 'text-white font-medium' : 'text-white/80'}`}
+                className={`text-lg py-2 font-bold ${isActive('/admin/players') ? 'text-white' : 'text-white/90'}`}
                 onClick={onClose}
               >
-                Player Management
+                PLAYER MANAGEMENT
               </Link>
               <Link 
                 href="/admin/gallery" 
-                className={`text-lg py-2 ${isActive('/admin/gallery') ? 'text-white font-medium' : 'text-white/80'}`}
+                className={`text-lg py-2 font-bold ${isActive('/admin/gallery') ? 'text-white' : 'text-white/90'}`}
                 onClick={onClose}
               >
-                Gallery Management
+                GALLERY MANAGEMENT
               </Link>
             </>
           )}

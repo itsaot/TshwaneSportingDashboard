@@ -44,17 +44,17 @@ export default function Header() {
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link href="/" className={`font-medium transition duration-200 ${isActive('/') ? 'text-white' : 'text-white/80 hover:text-white'}`}>
-              Home
+            <Link href="/" className={`text-sm tracking-wide font-bold transition duration-200 ${isActive('/') ? 'text-white' : 'text-white/90 hover:text-white'}`}>
+              HOME
             </Link>
-            <Link href="/players" className={`font-medium transition duration-200 ${isActive('/players') ? 'text-white' : 'text-white/80 hover:text-white'}`}>
-              Players
+            <Link href="/players" className={`text-sm tracking-wide font-bold transition duration-200 ${isActive('/players') ? 'text-white' : 'text-white/90 hover:text-white'}`}>
+              PLAYERS
             </Link>
-            <Link href="/gallery" className={`font-medium transition duration-200 ${isActive('/gallery') ? 'text-white' : 'text-white/80 hover:text-white'}`}>
-              Gallery
+            <Link href="/gallery" className={`text-sm tracking-wide font-bold transition duration-200 ${isActive('/gallery') ? 'text-white' : 'text-white/90 hover:text-white'}`}>
+              GALLERY
             </Link>
-            <Link href="/about" className={`font-medium transition duration-200 ${isActive('/about') ? 'text-white' : 'text-white/80 hover:text-white'}`}>
-              About
+            <Link href="/about" className={`text-sm tracking-wide font-bold transition duration-200 ${isActive('/about') ? 'text-white' : 'text-white/90 hover:text-white'}`}>
+              ABOUT
             </Link>
             
             {user ? (
