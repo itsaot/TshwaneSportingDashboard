@@ -88,14 +88,25 @@ export default function UploadPhotoForm({ photo, onSuccess, onCancel }: UploadPh
 
     setIsSubmitting(true);
     try {
+      console.log("Form values being submitted:", values);
       const formData = new FormData();
       
-      // Append all fields to formData
+      // Append all fields to formData and handle nullable fields
       Object.entries(values).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          formData.append(key, value.toString());
+        if (value !== undefined) {
+          if (value === null && key === "description") {
+            // Handle null description field by using empty string
+            formData.append(key, "");
+          } else if (value !== null) {
+            formData.append(key, value.toString());
+          }
         }
       });
+      
+      // Ensure description is present even if not provided
+      if (!formData.has("description")) {
+        formData.append("description", "");
+      }
       
       // Add image if available
       if (imageFile) {
@@ -107,6 +118,12 @@ export default function UploadPhotoForm({ photo, onSuccess, onCancel }: UploadPh
         formData.append("uploadedBy", user.id.toString());
       }
       
+      // Log FormData entries in a way that's compatible with all TypeScript targets
+      console.log("FormData entries (keys only):");
+      formData.forEach((value, key) => {
+        console.log(key + ': ' + (key === 'image' ? '[File]' : value));
+      });
+      
       // Determine if we're creating or updating
       if (photo) {
         // Update existing photo
@@ -116,6 +133,8 @@ export default function UploadPhotoForm({ photo, onSuccess, onCancel }: UploadPh
         });
         
         if (!response.ok) {
+          const errorData = await response.json().catch(() => null);
+          console.error("Update photo error response:", errorData);
           throw new Error(`Error updating photo: ${response.statusText}`);
         }
       } else {
@@ -126,6 +145,8 @@ export default function UploadPhotoForm({ photo, onSuccess, onCancel }: UploadPh
         });
         
         if (!response.ok) {
+          const errorData = await response.json().catch(() => null);
+          console.error("Create photo error response:", errorData);
           throw new Error(`Error uploading photo: ${response.statusText}`);
         }
       }

@@ -74,19 +74,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Unauthorized" });
       }
 
+      console.log("Raw player form data:", req.body);
+
       const photoUrl = req.file ? `/uploads/${req.file.filename}` : undefined;
       const playerData = { ...req.body, photoUrl };
       
+      // Convert string age to number
+      if (playerData.age && typeof playerData.age === 'string') {
+        playerData.age = parseInt(playerData.age, 10);
+      }
+      
+      // Fix date formats if needed
+      if (playerData.dateOfBirth) {
+        try {
+          // Ensure date is in YYYY-MM-DD format
+          const date = new Date(playerData.dateOfBirth);
+          playerData.dateOfBirth = date.toISOString().split('T')[0];
+        } catch (e) {
+          console.error("Error formatting dateOfBirth:", e);
+        }
+      }
+      
+      if (playerData.dateJoined) {
+        try {
+          // Ensure date is in YYYY-MM-DD format
+          const date = new Date(playerData.dateJoined);
+          playerData.dateJoined = date.toISOString().split('T')[0];
+        } catch (e) {
+          console.error("Error formatting dateJoined:", e);
+        }
+      }
+
+      console.log("Processed player data before validation:", playerData);
+      
       // Validate player data
       const validatedData = insertPlayerSchema.parse(playerData);
+      console.log("Validated player data:", validatedData);
       
       const player = await storage.createPlayer(validatedData);
       res.status(201).json(player);
     } catch (err) {
+      console.error("Player creation error:", err);
       if (err instanceof z.ZodError) {
+        console.error("Zod validation errors:", JSON.stringify(err.errors, null, 2));
         return res.status(400).json({ message: "Invalid player data", errors: err.errors });
       }
-      res.status(500).json({ message: "Failed to create player" });
+      res.status(500).json({ message: "Failed to create player", error: err instanceof Error ? err.message : String(err) });
     }
   });
 
@@ -165,6 +198,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Unauthorized" });
       }
 
+      console.log("Raw photo form data:", req.body);
+
       if (!req.file) {
         return res.status(400).json({ message: "Image file is required" });
       }
@@ -176,16 +211,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         uploadedBy: req.user.id
       };
       
+      // Ensure description is defined even if empty
+      if (photoData.description === undefined) {
+        photoData.description = "";
+      }
+      
+      console.log("Processed photo data before validation:", photoData);
+      
       // Validate photo data
       const validatedData = insertPhotoSchema.parse(photoData);
+      console.log("Validated photo data:", validatedData);
       
       const photo = await storage.createPhoto(validatedData);
       res.status(201).json(photo);
     } catch (err) {
+      console.error("Photo creation error:", err);
       if (err instanceof z.ZodError) {
+        console.error("Zod validation errors:", JSON.stringify(err.errors, null, 2));
         return res.status(400).json({ message: "Invalid photo data", errors: err.errors });
       }
-      res.status(500).json({ message: "Failed to create photo" });
+      res.status(500).json({ message: "Failed to create photo", error: err instanceof Error ? err.message : String(err) });
     }
   });
 
@@ -195,11 +240,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Unauthorized" });
       }
 
+      console.log("Raw photo update data:", req.body);
+
       const id = parseInt(req.params.id);
       let photoData = { ...req.body };
       
       if (req.file) {
         photoData.imageUrl = `/uploads/${req.file.filename}`;
+      }
+      
+      // Ensure description is defined even if empty
+      if (photoData.description === undefined) {
+        photoData.description = "";
+      }
+      
+      console.log("Processed photo data before update:", photoData);
+      
+      // Validate the update if we're updating required fields
+      if (photoData.title || photoData.category) {
+        try {
+          // Get the existing photo to merge with updates
+          const existingPhoto = await storage.getPhotoById(id);
+          if (!existingPhoto) {
+            return res.status(404).json({ message: "Photo not found" });
+          }
+          
+          // Merge existing data with updates
+          const completePhotoData = { ...existingPhoto, ...photoData };
+          console.log("Complete photo data for validation:", completePhotoData);
+          
+          // Validate the complete data
+          insertPhotoSchema.parse(completePhotoData);
+        } catch (validationError) {
+          if (validationError instanceof z.ZodError) {
+            console.error("Zod validation errors in update:", JSON.stringify(validationError.errors, null, 2));
+            return res.status(400).json({ message: "Invalid photo data", errors: validationError.errors });
+          }
+          throw validationError;
+        }
       }
       
       const updatedPhoto = await storage.updatePhoto(id, photoData);
@@ -209,7 +287,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json(updatedPhoto);
     } catch (err) {
-      res.status(500).json({ message: "Failed to update photo" });
+      console.error("Photo update error:", err);
+      res.status(500).json({ 
+        message: "Failed to update photo", 
+        error: err instanceof Error ? err.message : String(err) 
+      });
     }
   });
 
