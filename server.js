@@ -14,6 +14,9 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Check if running in Vercel environment
+const isVercel = process.env.VERCEL || false;
+
 // Database connection
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -276,15 +279,23 @@ app.post('/api/photos', ensureAdmin, upload.single('image'), async (req, res) =>
   }
 });
 
+// Determine static file paths based on environment
+const staticPath = isVercel ? path.join(__dirname, 'dist/public') : path.join(__dirname, 'client');
+const indexPath = isVercel ? path.join(__dirname, 'dist/public/index.html') : path.join(__dirname, 'client/index.html');
+
 // Serve static files - client-side app
-app.use(express.static(path.join(__dirname, 'client')));
+app.use(express.static(staticPath));
 
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Log current environment
+console.log(`Server running in ${isVercel ? 'Vercel' : 'local'} environment`);
+console.log(`Serving static files from: ${staticPath}`);
+
 // Always return the main index.html for any client-side routes
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'client/index.html'));
+  res.sendFile(indexPath);
 });
 
 // Start the server
